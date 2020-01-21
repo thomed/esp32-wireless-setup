@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 
+#define LED_ONBOARD 2
 #define EEPROM_SIZE 128 
 #define EEPROM_SSID_START 1
 #define EEPROM_SSID_ALLOC 33 // +1 for null terminate
@@ -11,9 +12,6 @@
 #define EEPROM_FRESH_FLAG_LOC 0
 
 const String DEFAULT_SSID = "GLIMPSE_BEACON";
-const IPAddress LOCAL_IP(192, 168, 1, 1);
-const IPAddress GATEWAY(192, 168, 1, 1);
-const IPAddress SUBNET(255, 255, 255, 0);
 
 const String indexHTML =
 "<!DOCTYPE html> <html>\n"

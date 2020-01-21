@@ -6,6 +6,7 @@
 #include <WebServer.h>
 #include <EEPROM.h>
 #include "constants.h"
+#include "status.h"
 
 WebServer server(80);
 
@@ -55,36 +56,41 @@ void handlePostRoot() {
     // TODO may need to do some verification/error handling
     writeSSID(server.arg("beaconname"));
     handleGetRoot();
-    delay(1000);
+    changeState(SETTINGS_CHANGE);
+    delay(1500);
     ESP.restart();
 }
 
 // TODO password stuff
 void initWebServer() {
-    Serial.println("Initing web server...");
+    Serial.println("Initializing web server...");
     WiFi.softAP(ssid, "");
-//    WiFi.softAPConfig(LOCAL_IP, GATEWAY, SUBNET);
     delay(200);
+
+    // set http handlers
     server.on("/", HTTP_GET, handleGetRoot);
     server.on("/", HTTP_POST, handlePostRoot);
     
-    Serial.print("This eps32 softIP: ");
+    Serial.print("This esp32 softIP: ");
     Serial.println(WiFi.softAPIP());
     server.begin();
-    Serial.println("Web server inited.");
+    Serial.println("Web server running.");
 }
 
 void initBluetooth() {
+    Serial.println("Initializing Bluetooth...");
     btStart();
     esp_bluedroid_init();
     esp_bluedroid_enable();
     esp_bt_dev_set_device_name(ssid);
     esp_bt_gap_set_scan_mode(ESP_BT_SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+    Serial.println("Bluetooth enabled.");
 }
 
 void setup() {
     Serial.begin(9600);
     EEPROM.begin(EEPROM_SIZE);
+
     // EEPROM inital vals = 255. 
     char fresh = EEPROM.read(EEPROM_FRESH_FLAG_LOC);
 
@@ -94,11 +100,14 @@ void setup() {
     } else {
         Serial.printf("Fresh flag: %x\n", fresh);
     }
+
     loadSSID();
 
     initBluetooth();
     initWebServer();
-    digitalWrite(2, HIGH);
+    initStatusTasks();
+
+    Serial.printf("Server running on core %d.\n", xPortGetCoreID());
 }
 
 // https://lastminuteengineers.com/creating-esp32-web-server-arduino-ide/
