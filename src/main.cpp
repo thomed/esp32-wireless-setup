@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <esp_bt_main.h>
 #include <esp_gap_bt_api.h>
+#include <esp_bt_device.h>
 #include <WiFi.h>
 #include <WebServer.h>
 #include <EEPROM.h>
@@ -18,7 +19,6 @@ void loadSSID() {
         Serial.printf("Reading SSID: %c\n", c);
         ssid[i] = c;
     }
-//    ssid[i] = '\0';
 }
 
 /**
@@ -55,6 +55,14 @@ void initWebServer() {
     Serial.println("Web server inited.");
 }
 
+void initBluetooth() {
+    btStart();
+    esp_bluedroid_init();
+    esp_bluedroid_enable();
+    esp_bt_dev_set_device_name(ssid);
+    esp_bt_gap_set_scan_mode(ESP_BT_SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+}
+
 void setup() {
     Serial.begin(9600);
     EEPROM.begin(EEPROM_SIZE);
@@ -69,6 +77,7 @@ void setup() {
     }
     loadSSID();
 
+    initBluetooth();
     initWebServer();
 }
 
