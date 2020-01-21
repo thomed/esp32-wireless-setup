@@ -2,4 +2,4 @@ Build and upload to an ESP32 board using PlatformIO.
 
 Once you have flashed the board, you can connect to it as a WiFi network for configuration.
 
-After you are connected, navigate to 192.168.1.4 in a browser to view the beacon configuration page. Upon submitting the form, you may be disconnected from the device as the changes are applied.
+After you are connected, navigate to 192.168.4.1 in a browser to view the beacon configuration page. Upon submitting the form, you may be disconnected from the device as the changes are applied.
