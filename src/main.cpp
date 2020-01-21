@@ -32,13 +32,31 @@ void writeSSID(String s) {
         EEPROM.write(EEPROM_SSID_START + i, s[i]);
     }
     EEPROM.write(EEPROM_SSID_START + i, '\0');
-    EEPROM.write(EEPROM_FRESH_FLAG_LOC, 0x1);
+    EEPROM.write(EEPROM_FRESH_FLAG_LOC, 0x0);
     EEPROM.commit();
 }
 
+/**
+ * Serve index
+ */
 void handleGetRoot() {
-    Serial.println("Handling root.");
+    Serial.println("Handling GET root.");
     server.send(200, "text/html", indexHTML);
+}
+
+/**
+ * Handle form submission.
+ * Update the beacon name and whatever options are added in the future.
+ */
+void handlePostRoot() {
+    Serial.println("Handling POST root.");
+    Serial.println(server.arg("beaconname"));
+
+    // TODO may need to do some verification/error handling
+    writeSSID(server.arg("beaconname"));
+    handleGetRoot();
+    delay(1000);
+    ESP.restart();
 }
 
 // TODO password stuff
@@ -48,6 +66,7 @@ void initWebServer() {
 //    WiFi.softAPConfig(LOCAL_IP, GATEWAY, SUBNET);
     delay(200);
     server.on("/", HTTP_GET, handleGetRoot);
+    server.on("/", HTTP_POST, handlePostRoot);
     
     Serial.print("This eps32 softIP: ");
     Serial.println(WiFi.softAPIP());
@@ -79,6 +98,7 @@ void setup() {
 
     initBluetooth();
     initWebServer();
+    digitalWrite(2, HIGH);
 }
 
 // https://lastminuteengineers.com/creating-esp32-web-server-arduino-ide/
